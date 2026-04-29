@@ -22,7 +22,6 @@ import (
 	"strings"
 	"time"
 
-	"cloud.google.com/go/compute/metadata"
 	"github.com/GoogleCloudPlatform/container-engine-accelerators/pkg/gpu/nvidia/util"
 	"github.com/NVIDIA/gpu-monitoring-tools/bindings/go/nvml"
 	"github.com/golang/glog"
@@ -62,7 +61,7 @@ type GPUHealthChecker struct {
 }
 
 // NewGPUHealthChecker returns a GPUHealthChecker object for a given device name
-func NewGPUHealthChecker(devices map[string]pluginapi.Device, health chan pluginapi.Device, codes []int, kubeClient client.Interface) *GPUHealthChecker {
+func NewGPUHealthChecker(devices map[string]pluginapi.Device, health chan pluginapi.Device, codes []int, kubeClient client.Interface, nodeName string) *GPUHealthChecker {
 	hc := &GPUHealthChecker{
 		devices:            make(map[string]pluginapi.Device),
 		nvmlDevices:        make(map[string]*nvml.Device),
@@ -72,6 +71,7 @@ func NewGPUHealthChecker(devices map[string]pluginapi.Device, health chan plugin
 		monitorCriticalXid: make(map[uint64]bool),
 	}
 	hc.kubeClient = kubeClient
+	hc.nodeName = nodeName
 
 	// Create an event broadcaster
 	eventBroadcaster := record.NewBroadcaster()
@@ -161,12 +161,6 @@ func (hc *GPUHealthChecker) resetXIDCondition() error {
 
 // Start registers NVML events and starts listening to them
 func (hc *GPUHealthChecker) Start() error {
-	nodeName, err := metadata.InstanceNameWithContext(context.Background())
-	if err != nil {
-		glog.Errorf("failed to get nodeName, err: %v", err)
-	}
-	hc.nodeName = nodeName
-
 	go hc.resetXIDConditionWithBackoff()
 
 	go hc.setXIDheartbeat()

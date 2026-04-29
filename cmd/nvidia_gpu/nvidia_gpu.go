@@ -144,12 +144,17 @@ func main() {
 	}
 
 	if *enableHealthMonitoring {
+		nodeName := os.Getenv("NODE_NAME")
+		if nodeName == "" {
+			glog.Warning("NODE_NAME environment variable not set, GPU Health Checker")
+			return
+		}
 		kubeClient, err := util.BuildKubeClient()
 		if err != nil {
 			glog.Infof("Failed to build kube client: %v", err)
 			return
 		}
-		hc := healthcheck.NewGPUHealthChecker(ngm.ListPhysicalDevices(), ngm.Health, ngm.ListHealthCriticalXid(), kubeClient)
+		hc := healthcheck.NewGPUHealthChecker(ngm.ListPhysicalDevices(), ngm.Health, ngm.ListHealthCriticalXid(), kubeClient, nodeName)
 		if err := hc.Start(); err != nil {
 			glog.Infof("Failed to start GPU Health Checker: %v", err)
 			return
