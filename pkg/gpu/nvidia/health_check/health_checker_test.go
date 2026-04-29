@@ -280,8 +280,7 @@ func TestUpdateLastHeartbeatTime(t *testing.T) {
 	})
 	fakeClient := fake.NewSimpleClientset(&v1.NodeList{Items: []v1.Node{node}})
 
-	hc := NewGPUHealthChecker(nil, nil, nil, fakeClient)
-	hc.nodeName = "test-node"
+	hc := NewGPUHealthChecker(nil, nil, nil, fakeClient, "test-node")
 
 	time.Sleep(2 * time.Second)
 	hc.updateLastHeartbeatTime()
@@ -321,8 +320,7 @@ func TestResetXIDConditionWithBackoff(t *testing.T) {
 		return false, nil, nil
 	})
 
-	hc := NewGPUHealthChecker(nil, nil, nil, fakeClient)
-	hc.nodeName = "test-node"
+	hc := NewGPUHealthChecker(nil, nil, nil, fakeClient, "test-node")
 
 	startTime := time.Now()
 	hc.resetXIDConditionWithBackoff()
@@ -432,8 +430,7 @@ func TestMonitorXidevent(t *testing.T) {
 		node.Status.NodeInfo.BootID = "123456"
 		fakeClient := fake.NewSimpleClientset(&v1.NodeList{Items: []v1.Node{node}})
 
-		hc := NewGPUHealthChecker(nil, nil, nil, fakeClient)
-		hc.nodeName = "test-node"
+		hc := NewGPUHealthChecker(nil, nil, nil, fakeClient, "test-node")
 
 		for _, event := range test.events {
 			hc.monitorXidevent(event)

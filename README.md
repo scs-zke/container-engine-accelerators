@@ -2,7 +2,13 @@
 
 This is a clone of the [GKE Hardware Accelerators](https://github.com/GoogleCloudPlatform/container-engine-accelerators) NVIDIA device plugin.
 
-It is cloned to allow a reproducable build independ of the GKE releases.
+It is cloned to allow a reproducable build independent of the GKE releases.
+
+## Changes compared to upstream
+
+* Uses hash of gcr.io/distroless/base image to get reproducible builds
+* The health checker uses the  ```NODE_NAME``` env variable to determine the node name instead of querying the cloud API. This allows
+  the usage of the plugin independent of the GKE environment.
 
 ## Usage
 
